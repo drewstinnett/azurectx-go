@@ -3,9 +3,26 @@ package subscription
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"os/exec"
 	"sort"
+
+	"github.com/drewstinnett/azurectx-go/internal/commander"
+	"github.com/drewstinnett/azurectx-go/internal/fzf"
 )
+
+type Client struct {
+	Cmd *commander.Commander
+}
+
+func NewClient(cmdr *commander.Commander) (*Client, error) {
+	c := &Client{}
+	if cmdr != nil {
+		c.Cmd = cmdr
+	}
+	return c, nil
+}
 
 type Subscription struct {
 	EnvironmentName  string `json:"environmentName,omitempty"`
@@ -24,8 +41,7 @@ type Subscription struct {
 	} `json:"user,omitempty"`
 }
 
-func GetSubscriptions() ([]Subscription, error) {
-	// profileFile, err := homedir.Expand("~/.azure/azureProfile.json")
+func (c *Client) GetSubscriptions() ([]Subscription, error) {
 	out, err := exec.Command("az", "account", "list", "--output=json").Output()
 	if err != nil {
 		return nil, err
@@ -40,8 +56,8 @@ func GetSubscriptions() ([]Subscription, error) {
 	return s, nil
 }
 
-func GetSubscriptionId(subname string) (string, error) {
-	subs, err := GetSubscriptions()
+func (c *Client) GetSubscriptionId(subname string) (string, error) {
+	subs, err := c.GetSubscriptions()
 	if err != nil {
 		return "", err
 	}
@@ -53,8 +69,8 @@ func GetSubscriptionId(subname string) (string, error) {
 	return "", errors.New("No subscription found")
 }
 
-func GetSubscriptionNames() ([]string, error) {
-	subs, err := GetSubscriptions()
+func (c *Client) GetSubscriptionNames() ([]string, error) {
+	subs, err := c.GetSubscriptions()
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +82,8 @@ func GetSubscriptionNames() ([]string, error) {
 	return names, nil
 }
 
-func GetCurrentSubscriptionName() (string, error) {
-	subs, err := GetSubscriptions()
+func (c *Client) GetCurrentSubscriptionName() (string, error) {
+	subs, err := c.GetSubscriptions()
 	if err != nil {
 		return "", err
 	}
@@ -79,10 +95,23 @@ func GetCurrentSubscriptionName() (string, error) {
 	return "", errors.New("No current subscription found")
 }
 
-func SetCurrentSubscriptionName(subname string) error {
+func (c *Client) SetCurrentSubscriptionName(subname string) error {
 	_, err := exec.Command("az", "account", "set", "-s", subname).Output()
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) PickSubscription() (string, error) {
+	subs, err := c.GetSubscriptionNames()
+	if err != nil {
+		return "", err
+	}
+	filtered := fzf.WithFilter("fzf", func(in io.WriteCloser) {
+		for _, p := range subs {
+			fmt.Fprintln(in, p)
+		}
+	})
+	return filtered[0], nil
 }

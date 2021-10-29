@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/drewstinnett/azurectx-go/internal/fzf"
+	"github.com/drewstinnett/azurectx-go/internal/commander"
 	"github.com/drewstinnett/azurectx-go/internal/subscription"
 	flag "github.com/spf13/pflag"
 )
@@ -16,23 +16,29 @@ func main() {
 
 	flag.Parse()
 
+	var cmd commander.Commander = commander.RealCommander{}
+	c, err := subscription.NewClient(&cmd)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if *current {
 		// Show current subscription
-		s, err := subscription.GetCurrentSubscriptionName()
+		s, err := c.GetCurrentSubscriptionName()
 		CheckErr(err)
 		fmt.Println(s)
 	} else if *list {
 		// List all subscriptions
-		names, err := subscription.GetSubscriptionNames()
+		names, err := c.GetSubscriptionNames()
 		CheckErr(err)
 		for _, name := range names {
 			fmt.Println(name)
 		}
 	} else if len(flag.Args()) == 0 {
 		// Set a subscription from the picker
-		s, err := fzf.PickSubscription()
+		s, err := c.PickSubscription()
 		CheckErr(err)
-		err = subscription.SetCurrentSubscriptionName(s)
+		err = c.SetCurrentSubscriptionName(s)
 		CheckErr(err)
 	} else if len(flag.Args()) > 0 {
 		// Set subscription to the argument
@@ -42,7 +48,7 @@ func main() {
 		} else {
 			subName = flag.Args()[0]
 		}
-		err := subscription.SetCurrentSubscriptionName(subName)
+		err := c.SetCurrentSubscriptionName(subName)
 		CheckErr(err)
 	}
 }
