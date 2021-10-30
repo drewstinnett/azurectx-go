@@ -22,6 +22,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if len(c.Subscriptions) == 0 {
+		log.Fatal("No subscriptions found, make sure you are logged in")
+		return
+	}
+
 	if *current {
 		// Show current subscription
 		s, err := c.GetCurrentSubscriptionName()
@@ -40,6 +45,7 @@ func main() {
 		CheckErr(err)
 		err = c.SetCurrentSubscriptionName(s)
 		CheckErr(err)
+		log.Printf("Switched to '%v'", s)
 	} else if len(flag.Args()) > 0 {
 		// Set subscription to the argument
 		var subName string
@@ -50,6 +56,7 @@ func main() {
 		}
 		err := c.SetCurrentSubscriptionName(subName)
 		CheckErr(err)
+		log.Printf("Switched to '%v'", subName)
 	}
 }
 

@@ -13,13 +13,18 @@ import (
 )
 
 type Client struct {
-	Cmd *commander.Commander
+	Cmd           commander.Commander
+	Subscriptions []Subscription
 }
 
 func NewClient(cmdr *commander.Commander) (*Client, error) {
 	c := &Client{}
 	if cmdr != nil {
-		c.Cmd = cmdr
+		c.Cmd = *cmdr
+	}
+	err := c.RefreshSubscriptions()
+	if err != nil {
+		return nil, err
 	}
 	return c, nil
 }
@@ -41,41 +46,28 @@ type Subscription struct {
 	} `json:"user,omitempty"`
 }
 
-func (c *Client) GetSubscriptions() ([]Subscription, error) {
-	out, err := exec.Command("az", "account", "list", "--output=json").Output()
+func (c *Client) RefreshSubscriptions() error {
+	out, err := c.Cmd.Output("az", "account", "list", "--output=json")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var s []Subscription
 
 	err = json.Unmarshal(out, &s)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return s, nil
+	c.Subscriptions = s
+	return nil
 }
 
-func (c *Client) GetSubscriptionId(subname string) (string, error) {
-	subs, err := c.GetSubscriptions()
-	if err != nil {
-		return "", err
-	}
-	for _, s := range subs {
-		if s.Name == subname {
-			return s.ID, nil
-		}
-	}
-	return "", errors.New("No subscription found")
+func (c *Client) GetSubscriptions() ([]Subscription, error) {
+	return c.Subscriptions, nil
 }
 
 func (c *Client) GetSubscriptionNames() ([]string, error) {
-	subs, err := c.GetSubscriptions()
-	if err != nil {
-		return nil, err
-	}
 	var names []string
-	for _, s := range subs {
+	for _, s := range c.Subscriptions {
 		names = append(names, s.Name)
 	}
 	sort.Strings(names)
@@ -98,7 +90,7 @@ func (c *Client) GetCurrentSubscriptionName() (string, error) {
 func (c *Client) SetCurrentSubscriptionName(subname string) error {
 	_, err := exec.Command("az", "account", "set", "-s", subname).Output()
 	if err != nil {
-		return err
+		return errors.New("Could not set subscription, does it exist?")
 	}
 	return nil
 }
