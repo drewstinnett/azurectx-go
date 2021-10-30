@@ -1,0 +1,43 @@
+---
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: ./cli/
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    ldflags:
+      - '-s -w'
+    flags:
+      - -trimpath
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: '386'
+    binary: 'azurectx'
+archives:
+  - format: tar.gz
+    name_template: 'azurectx-{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    replacements:
+      darwin: macOS
+checksum:
+  name_template: 'azurectx-{{ .Version }}_SHA256SUMS'
+  algorithm: sha256
+snapshot:
+  name_template: "{{ .Tag }}-snapshot"
+changelog:
+  skip: true
+
+brews:
+  - name: 'azurectx'
+    tap:
+      owner: drewstinnett
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    description: "Easily switch between Azure subscriptions"
+    homepage: "https://github.com/drewstinnett/azurectx-go"
+    license: BSD-2-Clause
