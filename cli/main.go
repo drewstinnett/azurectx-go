@@ -45,7 +45,7 @@ func main() {
 		CheckErr(err)
 		err = c.SetCurrentSubscriptionName(s)
 		CheckErr(err)
-		log.Printf("Switched to '%v'", s)
+		fmt.Printf("Switched to '%v'", s)
 	} else if len(flag.Args()) > 0 {
 		// Set subscription to the argument
 		var subName string
@@ -56,7 +56,7 @@ func main() {
 		}
 		err := c.SetCurrentSubscriptionName(subName)
 		CheckErr(err)
-		log.Printf("Switched to '%v'", subName)
+		fmt.Printf("Switched to '%v'", subName)
 	}
 }
 
