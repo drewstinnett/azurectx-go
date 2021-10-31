@@ -46,15 +46,15 @@ func NewClient(cmdr *commander.Commander) (*Client, error) {
 
 type Subscription struct {
 	EnvironmentName  string `json:"environmentName,omitempty"`
-	HomeTenantId     string `json:"homeTenantId,omitempty"`
+	HomeTenantID     string `json:"homeTenantID,omitempty"`
 	ID               string `json:"id,omitempty"`
 	IsDefault        bool   `json:"isDefault,omitempty"`
 	ManagedByTenants []struct {
-		TenantId string `json:"tenantId,omitempty"`
+		TenantID string `json:"tenantID,omitempty"`
 	} `json:"managedByTenants,omitempty"`
 	Name     string `json:"name,omitempty"`
 	State    string `json:"state,omitempty"`
-	TenantId string `json:"tenantId,omitempty"`
+	TenantID string `json:"tenantID,omitempty"`
 	User     struct {
 		Name string `json:"name,omitempty"`
 		Type string `json:"type,omitempty"`
