@@ -19,10 +19,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cmd
 
-import "github.com/drewstinnett/azurectx-go/cli/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/spf13/cobra"
+)
+
+// pickCmd represents the pick command
+var pickCmd = &cobra.Command{
+	Use:     "pick",
+	Short:   "Interactively select a Subscription",
+	Long:    `Use fzf to interactively select a new Subscription`,
+	Aliases: []string{"p"},
+	Run: func(cmd *cobra.Command, args []string) {
+		s, err := client.PickSubscription()
+		cobra.CheckErr(err)
+		err = client.SetCurrentSubscriptionName(s)
+		cobra.CheckErr(err)
+		fmt.Printf("Switched to '%v'\n", s)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(pickCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// pickCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// pickCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

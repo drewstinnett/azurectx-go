@@ -19,10 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cmd
 
-import "github.com/drewstinnett/azurectx-go/cli/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/spf13/cobra"
+)
+
+// currentCmd represents the current command
+var currentCmd = &cobra.Command{
+	Use:     "current",
+	Short:   "Show current subscription",
+	Aliases: []string{"c"},
+	Run: func(cmd *cobra.Command, args []string) {
+		s, err := client.GetCurrentSubscriptionName()
+		cobra.CheckErr(err)
+		fmt.Println(s)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(currentCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// currentCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// currentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
