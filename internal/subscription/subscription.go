@@ -15,6 +15,7 @@ import (
 type Client struct {
 	Cmd           commander.Commander
 	Subscriptions []Subscription
+	FZFInstalled  bool
 }
 
 func NewClient(cmdr *commander.Commander) (*Client, error) {
@@ -22,7 +23,21 @@ func NewClient(cmdr *commander.Commander) (*Client, error) {
 	if cmdr != nil {
 		c.Cmd = *cmdr
 	}
-	err := c.RefreshSubscriptions()
+
+	// Is fzf installed?
+	_, err := exec.LookPath("fzf")
+	if err == nil {
+		c.FZFInstalled = true
+	}
+
+	// Is azure-cli installed?
+	// If not, return an error, we really need that azure-cli
+	_, err = exec.LookPath("az")
+	if err != nil {
+		return nil, errors.New("azure-cli is not installed")
+	}
+
+	err = c.RefreshSubscriptions()
 	if err != nil {
 		return nil, err
 	}

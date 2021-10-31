@@ -16,15 +16,14 @@ func main() {
 
 	flag.Parse()
 
-	var cmd commander.Commander = commander.RealCommander{}
-	c, err := subscription.NewClient(&cmd)
+	var cmdr commander.Commander = commander.RealCommander{}
+	c, err := subscription.NewClient(&cmdr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if len(c.Subscriptions) == 0 {
 		log.Fatal("No subscriptions found, make sure you are logged in")
-		return
 	}
 
 	if *current {
@@ -41,11 +40,20 @@ func main() {
 		}
 	} else if len(flag.Args()) == 0 {
 		// Set a subscription from the picker
-		s, err := c.PickSubscription()
-		CheckErr(err)
-		err = c.SetCurrentSubscriptionName(s)
-		CheckErr(err)
-		fmt.Printf("Switched to '%v'", s)
+		if c.FZFInstalled {
+			s, err := c.PickSubscription()
+			CheckErr(err)
+			err = c.SetCurrentSubscriptionName(s)
+			CheckErr(err)
+			fmt.Printf("Switched to '%v'", s)
+		} else {
+			// But if no fzf, just list them
+			names, err := c.GetSubscriptionNames()
+			CheckErr(err)
+			for _, name := range names {
+				fmt.Println(name)
+			}
+		}
 	} else if len(flag.Args()) > 0 {
 		// Set subscription to the argument
 		var subName string
