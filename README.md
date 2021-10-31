@@ -15,9 +15,12 @@ it's also installed and in your `$PATH`
 
 ## Usage
 
-Launch fzf subscription picket with:
+Launch fzf subscription picker with:
 
 ```bash
+$ azurectx pick
+...
+# Or just run with no options
 $ azurectx
 ...
 ```
@@ -25,7 +28,7 @@ $ azurectx
 List all subscriptions with:
 
 ```bash
-$ azurectx -l
+$ azurectx list
 Test Subscription 1
 Test Subscription 2
 ```
@@ -33,13 +36,13 @@ Test Subscription 2
 List current subscription with:
 
 ```bash
-$ azurectx -c
+$ azurectx current
 Test Subscription 2
 ```
 
 Set a specific subscription non-interactively with:
 
 ```bash
-$ azurectx "Test Subscription 1"
+$ azurectx set "Test Subscription 1"
 Switched to 'TestSubscription 1'
 ```

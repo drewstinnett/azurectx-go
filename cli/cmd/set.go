@@ -19,10 +19,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cmd
 
-import "github.com/drewstinnett/azurectx-go/cli/cmd"
+import (
+	"fmt"
+	"strings"
 
-func main() {
-	cmd.Execute()
+	"github.com/spf13/cobra"
+)
+
+// setCmd represents the set command
+var setCmd = &cobra.Command{
+	Use:     "set",
+	Short:   "Set current subscription",
+	Aliases: []string{"s"},
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		var subName string
+		if len(args) > 1 {
+			subName = strings.Join(args, " ")
+		} else {
+			subName = args[0]
+		}
+		err := client.SetCurrentSubscriptionName(subName)
+		cobra.CheckErr(err)
+		fmt.Printf("Switched to '%v'\n", subName)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(setCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// setCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// setCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

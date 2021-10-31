@@ -6,6 +6,9 @@ builds:
     mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
       - '-s -w'
+      - -X github.com/drewstinnett/azurectx-go/cli/cmd.date={{ .CommitTimestamp }}
+      - -X github.com/drewstinnett/azurectx-go/cli/cmd.version={{ .Tag }}
+      - -X github.com/drewstinnett/azurectx-go/cli/cmd.commit={{ .ShortCommit }}
     flags:
       - -trimpath
     goos:
